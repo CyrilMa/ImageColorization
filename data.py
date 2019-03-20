@@ -1,22 +1,9 @@
 import os, random, skimage, scipy
 
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import imshow
 from skimage import io, color, transform
 
-import tensorflow as tf
 import keras
-from keras.layers import Input, Dense, UpSampling2D, Reshape, Flatten, Dropout, Activation, ZeroPadding2D, MaxPooling2D,Concatenate
-from keras.layers import BatchNormalization as BN
-from keras.layers.advanced_activations import LeakyReLU
-from keras.layers.convolutional import UpSampling2D, Conv2D, Conv2DTranspose
-from keras.models import Sequential, Model, load_model
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
-
-from keras.backend import tile, shape
-from keras.layers import Lambda
 
 from config import dataset_conf
 
@@ -26,7 +13,7 @@ class DataGenerator(keras.utils.Sequence):
         'Initialization'
         self.dim = dim
         self.batch_size = batch_size
-        self.labels = dataset_conf[dataset]["labels"]
+        self.labels = {k:i for i, k in enumerate(dataset_conf[dataset]["labels"])}
         self.list_IDs = list_IDs
         self.n_channels = 3
         self.n_classes = dataset_conf[dataset]["n_classes"]
@@ -66,7 +53,7 @@ class DataGenerator(keras.utils.Sequence):
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
-            im = randomCrop(io.imread('SUN2012/SUN2012/Images/' + ID), 224, 224)
+            im = randomCrop(io.imread(self.ABS_PATH + ID), 224, 224)
             X[i,] = color.rgb2gray(im).reshape((224,224,1))
             
             img_lab = color.rgb2lab(im)
@@ -129,12 +116,14 @@ def load_dataset(dataset = "SUN2012"):
     ABS_PATH = dataset_conf[dataset]["path"]
 
     training_set = []
-    for line in open(ABS_PATH+"training_set.txt",'r'):
-        training_set.append(line)
+    f = open(ABS_PATH+"training_set.txt",'r')
+    for line in f.readlines():
+        training_set.append(line[:-1])
 
     validation_set = []
-    for line in open(ABS_PATH+"validation_set.txt",'r'):
-        validation_set.append(line)
+    f = open(ABS_PATH+"validation_set.txt",'r')
+    for line in f.readlines():
+        validation_set.append(line[:-1])
 
     return training_set, validation_set
 
