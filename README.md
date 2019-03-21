@@ -1,1 +1,1 @@
-# ImageColorization
+Requested Libraries : Numpy, Scipy, Matplotlib, Keras, Tensorflow, SKImage
