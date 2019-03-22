@@ -14,9 +14,14 @@ keras.backend.set_session(sess)
 dataset = "SUN2012"
 ABS_PATH = dataset_conf[dataset]["path"]
 
-weights = None
+dataset = "SUN2012"
 if len(sys.argv) >= 2: # weights filename without path
     weights = sys.argv[1]
+
+
+weights = None
+if len(sys.argv) >= 3: # weights filename without path
+    weights = sys.argv[2]
 
 # Load the data
 if "training_set.txt" not in os.listdir(ABS_PATH):
