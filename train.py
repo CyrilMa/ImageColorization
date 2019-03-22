@@ -28,8 +28,8 @@ print("Loading Dataset...")
 train_set, val_set = load_dataset(dataset)
 
 # Prepare the data generator
-train_generator = DataGenerator(train_set)
-validation_generator = DataGenerator(val_set)
+train_generator = DataGenerator(train_set, dataset=dataset)
+validation_generator = DataGenerator(val_set, dataset=dataset)
 
 # Prepare the model
 print("Building Model...")
