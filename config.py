@@ -12,4 +12,18 @@ dataset_conf = {
          'galley', 'game_room', 'utility_room', 'river', 'reception', 'kitchen', 'living_room', 
         'valley', 'skyscraper', 'staircase', 'street', 'shoe_shop', 'nursery'],
     },
+
+    "short_SUN2012": {
+        "n_classes":13,
+        "path":"data/SUN2012/Images/",
+        "labels":['office', 'ocean', 'building_facade', 'beach', 'mountain_snowy',
+         'mountain', 'creek',  'highway', 'pasture', 'river', 'valley', 'skyscraper',
+          'street'],
+    },
+
+    "MIT-places" : {
+        "n_classes":4,
+        "path":"data/scenedatabase",
+        "labels":['Opencountry', 'coast', 'forest', 'mountain'],
+    },
 }

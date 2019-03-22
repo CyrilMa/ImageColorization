@@ -168,7 +168,7 @@ class ImageColorizer():
 
     def fit(self, train, val): # train, val DataGenerator
 
-        filepath="weights/weight-{epoch:02d}-{val_loss:.2f}.hdf5"
+        filepath="weights/weight-%s-{epoch:02d}-{val_loss:.4f}.hdf5"%self.dataset_name
         checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
         
         self.nn.fit_generator(train, epochs = self.epochs, validation_data=val, callbacks = [checkpoint])        
