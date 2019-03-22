@@ -4,14 +4,16 @@ import numpy as np
 from skimage import io, color, transform
 
 import keras
+from keras.preprocessing.image import ImageDataGenerator
 
 from config import dataset_conf
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, list_IDs, dataset = "SUN2012", batch_size=32, dim=(224,224), shuffle=True):
+    def __init__(self, list_IDs, dataset = "SUN2012", training = True, batch_size=32, dim=(224,224), shuffle=True):
         'Initialization'
         self.dim = dim
+        self.training = training
         self.batch_size = batch_size
         self.labels = {k:i for i, k in enumerate(dataset_conf[dataset]["labels"])}
         self.list_IDs = list_IDs
@@ -20,6 +22,14 @@ class DataGenerator(keras.utils.Sequence):
         self.shuffle = shuffle
         self.on_epoch_end()
         self.ABS_PATH = dataset_conf[dataset]["path"]
+        self.data_gen = ImageDataGenerator(
+                                rotation_range=40,
+                                width_shift_range=0.2,
+                                height_shift_range=0.2,
+                                shear_range=0.2,
+                                zoom_range=0.2,
+                                horizontal_flip=True,
+                                fill_mode='nearest')
 
     def __len__(self):
         'Denotes the number of batches per epoch'
@@ -54,6 +64,11 @@ class DataGenerator(keras.utils.Sequence):
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             im = randomCrop(io.imread(self.ABS_PATH + ID), 224, 224)
+            if self.training == True:
+                im = self.data_gen.flow(im.reshape((1,224,224,3)), batch_size=1).__getitem__(0)[0]/255
+            else:
+                im = im/255
+
             X[i,] = color.rgb2gray(im).reshape((224,224,1))
             
             img_lab = color.rgb2lab(im)
