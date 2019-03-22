@@ -2,3 +2,4 @@ data/SUN2012/
 .vscode
 __pycache__
 weights/
+.ipynb_checkpoints/
