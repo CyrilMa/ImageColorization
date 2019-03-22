@@ -29,7 +29,7 @@ train_set, val_set = load_dataset(dataset)
 
 # Prepare the data generator
 train_generator = DataGenerator(train_set, dataset=dataset)
-validation_generator = DataGenerator(val_set, dataset=dataset)
+validation_generator = DataGenerator(val_set, dataset=dataset, training = False)
 
 # Prepare the model
 print("Building Model...")
