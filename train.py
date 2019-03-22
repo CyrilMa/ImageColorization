@@ -12,12 +12,9 @@ keras.backend.set_session(sess)
 
 
 dataset = "SUN2012"
-ABS_PATH = dataset_conf[dataset]["path"]
-
-dataset = "SUN2012"
 if len(sys.argv) >= 2: # weights filename without path
-    weights = sys.argv[1]
-
+    dataset = sys.argv[1]
+ABS_PATH = dataset_conf[dataset]["path"]
 
 weights = None
 if len(sys.argv) >= 3: # weights filename without path
