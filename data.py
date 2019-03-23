@@ -88,10 +88,10 @@ def rgb2gray(rgb):
   return gray.reshape(*gray.shape,1)
 
 def randomCrop(img, width, height):
-    # if img.shape[0] <= height:
-    #   img = transform.rescale(img, height/img.shape[0])
-    # if img.shape[1] <= width:
-    #   img = transform.rescale(img, width/img.shape[1])    
+    if img.shape[0] <= height:
+      img = transform.rescale(img, height/img.shape[0])
+    if img.shape[1] <= width:
+      img = transform.rescale(img, width/img.shape[1])    
     x = random.randint(0, img.shape[1] - width)
     y = random.randint(0, img.shape[0] - height)
     img = img[y:y+height, x:x+width]
