@@ -23,7 +23,7 @@ dataset_conf = {
 
     "MIT-places" : {
         "n_classes":4,
-        "path":"data/scenedatabase",
+        "path":"data/scenedatabase/",
         "labels":['Opencountry', 'coast', 'forest', 'mountain'],
     },
 }
