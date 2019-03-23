@@ -103,34 +103,22 @@ def build_dataset(dataset = "SUN2012"):
     ABS_PATH = dataset_conf[dataset]["path"]
     labels = dataset_conf[dataset]["labels"]
     train_set, val_set = [], []
-    if dataset == "SUN2012":
-        for path in os.listdir(ABS_PATH):
-            if len(path)!=1:
+    is_sun = ("SUN" in dataset)
+    for path in os.listdir(ABS_PATH):
+        if is_sun and len(path)!=1:
+            continue
+        for subpath in os.listdir(ABS_PATH+path):
+            if subpath not in labels:
                 continue
-            for subpath in os.listdir(ABS_PATH+path):
-                if subpath not in labels:
-                    continue
-                for im in os.listdir(ABS_PATH+path+"/"+subpath):
-                    if ".jpg" not in im:
-                        continue
-                    if io.imread(ABS_PATH+path+"/"+subpath+"/"+im).shape[-1]!=3:
-                        continue
-                    if random.random() < 0.05:
-                        val_set.append(path+"/"+subpath+"/"+im)
-                    else:
-                        train_set.append(path+"/"+subpath+"/"+im)
-
-    if dataset == "MIT-places":
-        for path in os.listdir(ABS_PATH):
-            for im in os.listdir(ABS_PATH+path):
+            for im in os.listdir(ABS_PATH+path+"/"+subpath):
                 if ".jpg" not in im:
                     continue
-                if io.imread(ABS_PATH+path+"/"+im).shape[-1]!=3:
+                if io.imread(ABS_PATH+path+"/"+subpath+"/"+im).shape[-1]!=3:
                     continue
                 if random.random() < 0.05:
-                    val_set.append(path+"/"+im)
+                    val_set.append(path+"/"+subpath+"/"+im)
                 else:
-                    train_set.append(path+"/"+im)
+                    train_set.append(path+"/"+subpath+"/"+im)
 
     with open(ABS_PATH+'training_set.txt', 'w') as f:
         for item in train_set:
