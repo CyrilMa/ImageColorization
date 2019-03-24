@@ -39,4 +39,5 @@ if weights:
 
 # Let's train
 colorizer.epochs = 300
+train_generator.batch_size = 16
 colorizer.fit(train_generator, validation_generator)
