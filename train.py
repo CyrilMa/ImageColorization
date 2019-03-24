@@ -1,7 +1,7 @@
 import os, sys
 
 from data import DataGenerator, build_dataset, load_dataset
-from nn import ImageColorizer
+from nn import ImageColorizer2
 from config import dataset_conf
 
 import keras
@@ -11,7 +11,7 @@ sess = tf.Session(config=config)
 keras.backend.set_session(sess)
 
 
-dataset = "SUN2012"
+dataset = "short_SUN2012"
 if len(sys.argv) >= 2: # weights filename without path
     dataset = sys.argv[1]
 ABS_PATH = dataset_conf[dataset]["path"]
@@ -33,7 +33,7 @@ validation_generator = DataGenerator(val_set, dataset=dataset, training = False)
 
 # Prepare the model
 print("Building Model...")
-colorizer = ImageColorizer(dataset_name = dataset)
+colorizer = ImageColorizer2(dataset_name = dataset)
 if weights:
     colorizer.load_weights("weights/"+weights)
 

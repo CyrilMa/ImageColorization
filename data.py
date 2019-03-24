@@ -10,7 +10,7 @@ from config import dataset_conf
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, list_IDs, dataset = "SUN2012", training = True, batch_size=32, dim=(224,224), shuffle=True):
+    def __init__(self, list_IDs, dataset = "SUN2012", training = True, batch_size=16, dim=(224,224), shuffle=True):
         'Initialization'
         self.dim = dim
         self.training = training
