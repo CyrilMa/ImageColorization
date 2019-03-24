@@ -1,4 +1,5 @@
 data/SUN2012/
+data/scenedatabase/
 .vscode
 __pycache__
 weights/
