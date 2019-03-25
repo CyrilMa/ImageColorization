@@ -28,7 +28,7 @@ print("Loading Dataset...")
 train_set, val_set = load_dataset(dataset)
 
 # Prepare the data generator
-equalizer = Equalizer(train_set)
+equalizer = Equalizer()
 equalizer.fit(dataset_conf[dataset]["path"], train_set)
 
 train_generator = DataGenerator(train_set, dataset=dataset, equalizer = equalizer)
