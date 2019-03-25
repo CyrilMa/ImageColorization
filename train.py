@@ -1,6 +1,6 @@
 import os, sys
 
-from data import DataGenerator, build_dataset, load_dataset
+from data import DataGenerator, Equalizer, build_dataset, load_dataset
 from nn import ImageColorizer2
 from config import dataset_conf
 
@@ -28,8 +28,11 @@ print("Loading Dataset...")
 train_set, val_set = load_dataset(dataset)
 
 # Prepare the data generator
-train_generator = DataGenerator(train_set, dataset=dataset)
-validation_generator = DataGenerator(val_set, dataset=dataset, training = False)
+equalizer = Equalizer(train_set)
+equalizer.fit(dataset_conf[dataset]["path"], train_set)
+
+train_generator = DataGenerator(train_set, dataset=dataset, equalizer = equalizer)
+validation_generator = DataGenerator(val_set, dataset=dataset, training = False, equalizer = equalizer)
 
 # Prepare the model
 print("Building Model...")
@@ -38,6 +41,6 @@ if weights:
     colorizer.load_weights("weights/"+weights)
 
 # Let's train
-colorizer.epochs = 300
+colorizer.epochs = 800
 train_generator.batch_size = 16
 colorizer.fit(train_generator, validation_generator)

@@ -10,7 +10,7 @@ from config import dataset_conf
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, list_IDs, dataset = "SUN2012", training = True, batch_size=16, dim=(224,224), shuffle=True):
+    def __init__(self, list_IDs, dataset = "SUN2012", training = True, batch_size=16, dim=(224,224), shuffle=True, equalizer = None):
         'Initialization'
         self.dim = dim
         self.training = training
@@ -22,6 +22,7 @@ class DataGenerator(keras.utils.Sequence):
         self.shuffle = shuffle
         self.on_epoch_end()
         self.ABS_PATH = dataset_conf[dataset]["path"]
+        self.equalizer = equalizer
         self.data_gen = ImageDataGenerator(
                                 rotation_range=40,
                                 width_shift_range=0.2,
@@ -74,6 +75,9 @@ class DataGenerator(keras.utils.Sequence):
             img_lab = color.rgb2lab(im)
             img_lab = (img_lab + 128) / 255
             img_ab = img_lab[:, :, 1:3]
+
+            if self.equalizer:
+                img_ab = self.equalizer.transform(img_ab)
 
             y_col[i,] = img_ab
             y_lab[i] = self.labels[ID.split("/")[1]]
@@ -143,5 +147,75 @@ def load_dataset(dataset = "SUN2012"):
 
     return training_set, validation_set
 
+class Equalizer():
+    def __init__(self, nbins=1000,min_slope=0.2):
+        self.nbins = nbins
+        self.bins = np.linspace(0,1,nbins+1)
+        self.scale_a = np.zeros(nbins)
+        self.scale_b = np.zeros(nbins)
+        self.inv_scale_a = np.zeros(nbins)
+        self.inv_scale_b = np.zeros(nbins)
+        assert min_slope>0 and min_slope<1
+        self.alpha = min_slope/(1-min_slope)
+       
+    def fit(self, dir_images, list_images):
+        counts_a = np.zeros(self.nbins)
+        counts_b = np.zeros(self.nbins)
+        for sub_path in list_images:
+            path = dir_images + '/' + sub_path
+            im=(color.rgb2lab(io.imread(path)) + 128)/255
+#             img_lab = (img_lab + 128) / 255
+            counts_a += np.histogram(im[:,:,1].flatten(), self.bins)[0]
+            counts_b += np.histogram(im[:,:,2].flatten(), self.bins)[0]
+            
+        counts_a += self.alpha*np.sum(counts_a)/self.nbins
+        counts_b += self.alpha*np.sum(counts_b)/self.nbins
+        self.tmp = counts_a
+        cum_sum_a = counts_a.cumsum()
+        cum_sum_b = counts_b.cumsum()
+        
+        self.scale_a[:] = cum_sum_a/cum_sum_a[-1]
+        self.scale_b[:] = cum_sum_b/cum_sum_b[-1]
+        
+        self.inv_scale_a[:] = self.compute_bijection(self.scale_a)
+        self.inv_scale_b[:] = self.compute_bijection(self.scale_b)
+    
+    def compute_bijection(self, scale):
+        N = scale.shape[0]
+        inv_scale = np.zeros(N)
+        vals = np.linspace(0,1,N)
+        ii = 0
+        for i, val in enumerate(vals):
+            if i==0:
+                continue
+            while scale[ii] < val and ii<N-1:
+                ii += 1
 
+            if scale[ii] > val:
+#                 if scale[ii-1] > val:
+#                     print(ii, scale[ii], scale[ii-1], val)
+                assert scale[ii-1] <= val
+                delta = scale[ii]-scale[ii-1]
+                inv_scale[i] = (ii/N)*(scale[ii] - val)/delta + ((ii-1)/N)*(val - scale[ii-1])/delta
+
+        inv_scale[-1] = 1
+        return inv_scale
+    
+    def transform(self, im_ab):
+        if len(im_ab.shape)==3:
+            im_ab[:,:,0] = self.scale_a[(im_ab[:,:,0].clip(0,1)*(self.nbins-1)).astype(int)]
+            im_ab[:,:,1] = self.scale_b[(im_ab[:,:,1].clip(0,1)*(self.nbins-1)).astype(int)]
+        elif len(im_ab.shape)==4:
+            im_ab[:,:,:,0] = self.scale_a[(im_ab[:,:,:,0].clip(0,1)*(self.nbins-1)).astype(int)]
+            im_ab[:,:,:,1] = self.scale_b[(im_ab[:,:,:,1].clip(0,1)*(self.nbins-1)).astype(int)]
+        return im_ab
+    
+    def inv_transform(self, im_ab):
+        if len(im_ab.shape)==3:
+            im_ab[:,:,0] = self.inv_scale_a[(im_ab[:,:,0].clip(0,1)*(self.nbins-1)).astype(int)]
+            im_ab[:,:,1] = self.inv_scale_b[(im_ab[:,:,1].clip(0,1)*(self.nbins-1)).astype(int)]
+        elif len(im_ab.shape)==4:
+            im_ab[:,:,:,0] = self.inv_scale_a[(im_ab[:,:,:,0].clip(0,1)*(self.nbins-1)).astype(int)]
+            im_ab[:,:,:,1] = self.inv_scale_b[(im_ab[:,:,:,1].clip(0,1)*(self.nbins-1)).astype(int)]
+        return im_ab
     
